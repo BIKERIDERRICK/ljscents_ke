@@ -1,10 +1,13 @@
+// src/App.js
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
+import Footer from './components/Footer';
 import Home from './pages/Home';
-import Products from './pages/Products';
-import Cart from './pages/Cart';
 import About from './pages/About';
+import Products from './pages/Products';
+import Pricing from './pages/Pricing';
+import Cart from './pages/Cart';
 import Contact from './pages/Contact';
 import Modal from './components/Modal';
 
@@ -18,82 +21,78 @@ function App() {
   }, [cart]);
 
   const addToCart = (product, size, price) => {
-    if (!size || !price) {
-      alert('Please select a size first.');
-      return;
-    }
-    setCart((prev) => {
-      const existing = prev.find((item) => item.name === product.name && item.size === size);
+    if (!size || !price) return alert('Select a size');
+    setCart(prev => {
+      const existing = prev.find(i => i.name === product.name && i.size === size);
       if (existing) {
-        return prev.map((item) =>
-          item.name === product.name && item.size === size
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
+        return prev.map(i => i.name === product.name && i.size === size
+          ? { ...i, quantity: i.quantity + 1 }
+          : i
         );
       }
       return [...prev, { name: product.name, size, price, quantity: 1 }];
     });
   };
 
-  const removeFromCart = (index) => {
-    setCart((prev) => prev.filter((_, i) => i !== index));
-  };
+  const removeFromCart = (i) => setCart(prev => prev.filter((_, idx) => idx !== i));
 
   const submitOrder = (e) => {
     e.preventDefault();
     const form = e.target;
-    const name = form.querySelector('#name').value || 'Unknown';
-    const email = form.querySelector('#email').value || 'No email provided';
-    const phone = form.querySelector('#phone').value || 'No phone provided';
-    const address = form.querySelector('#address').value || 'No address provided';
-
-    if (cart.length === 0) {
-      alert('Error: Your cart is empty.');
-      return;
-    }
-
-    const cartDetails = cart.map((item) => `${item.name} (${item.size}): ${item.quantity}x KES${item.price.toFixed(2)}`).join('; ');
-    const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    const message = `Order from ${name}, Email: ${email}, Phone: ${phone}, Address: ${address}, Items: ${cartDetails}, Total: KES${total.toFixed(2)}`;
-
-    console.log('WhatsApp Message:', message);
-    const whatsappURL = `https://wa.me/254702899085?text=${encodeURIComponent(message)}`;
-    console.log('WhatsApp URL:', whatsappURL);
-
-    if (whatsappURL.length > 4000) {
-      alert('Error: Order message is too long. Please reduce items.');
-      return;
-    }
-
+    const name = form.name.value || 'Unknown';
+    const phone = form.phone.value || 'No phone';
+    const address = form.address.value || 'No address';
+    const items = cart.map(i => `${i.name} (${i.size}) ×${i.quantity}`).join(', ');
+    const total = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+    const msg = `Order: ${name}, ${phone}, ${address}\nItems: ${items}\nTotal: KES ${total}`;
+    window.location.href = `https://wa.me/254702899085?text=${encodeURIComponent(msg)}`;
     setCart([]);
     setShowCheckout(false);
     form.reset();
-    try {
-      window.location.href = whatsappURL;
-      setTimeout(() => {
-        alert('If WhatsApp did not open, copy this link: ' + whatsappURL);
-      }, 3000);
-    } catch (error) {
-      console.error('Redirect Error:', error);
-      alert('Error redirecting to WhatsApp. Copy this link: ' + whatsappURL);
-    }
   };
 
   return (
     <Router>
-      <div className="bg-background">
-        <Navbar cartCount={cart.reduce((sum, item) => sum + item.quantity, 0)} />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/products" element={<Products addToCart={addToCart} setModalImage={setModalImage} />} />
-          <Route path="/cart" element={<Cart cart={cart} removeFromCart={removeFromCart} setShowCheckout={setShowCheckout} submitOrder={submitOrder} showCheckout={showCheckout} />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-        </Routes>
+      <ScrollHandler />
+      <div className="min-h-screen bg-[#f9f5f0] flex flex-col">
+        {/* Fixed Navbar */}
+        <Navbar cartCount={cart.reduce((s, i) => s + i.quantity, 0)} />
+
+        {/* All Sections in One Page */}
+        <main className="flex-grow">
+          <Home />
+          <About />
+          <Products addToCart={addToCart} setModalImage={setModalImage} />
+          <Pricing addToCart={addToCart} setModalImage={setModalImage} />
+          <Cart cart={cart} removeFromCart={removeFromCart} setShowCheckout={setShowCheckout} showCheckout={showCheckout} submitOrder={submitOrder} />
+          <Contact />
+        </main>
+
+        <Footer />
         {modalImage && <Modal image={modalImage} close={() => setModalImage(null)} />}
       </div>
     </Router>
   );
+}
+
+// SMOOTH SCROLL + URL SYNC
+function ScrollHandler() {
+  const location = useLocation();
+
+  useEffect(() => {
+    const path = location.pathname;
+    const hash = location.hash;
+    const id = hash ? hash.slice(1) : path.slice(1) || 'home';
+
+    const element = document.getElementById(id);
+    if (element) {
+      setTimeout(() => {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  }, [location]);
+
+  return null;
 }
 
 export default App;

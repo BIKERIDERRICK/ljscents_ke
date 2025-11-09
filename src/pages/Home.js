@@ -1,36 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { slides } from '../data/products';
-
-function Home() {
-  const [slideIndex, setSlideIndex] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setSlideIndex((prev) => (prev + 1) % slides.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
+// src/pages/Home.js
+export default function Home() {
   return (
-    <section id="home" className="relative h-screen flex items-center justify-center text-center">
-      <div className="absolute inset-0 z-0">
-        {slides.map((slide, index) => (
-          <div
-            key={index}
-            className={`absolute inset-0 transition-opacity duration-500 ${index === slideIndex ? 'opacity-100' : 'opacity-0'}`}
-          >
-            <img src={slide} alt={`Slide ${index + 1}`} className="w-full h-full object-cover" />
-          </div>
-        ))}
-      </div>
-      <div className="absolute inset-0 bg-black/50 z-10"></div>
-      <div className="relative z-20">
-        <h1 className="text-3xl md:text-5xl font-bold mb-4 text-white">Welcome to LJ Scents KE</h1>
-        <p className="text-lg md:text-xl mb-6 text-white">Discover our luxurious candles and diffusers</p>
-        <a href="/products" className="inline-block px-6 py-3 border-2 border-white text-white rounded-md hover:bg-[#28a745] hover:border-[#28a745] transition-all">Shop Now</a>
+    <section id="home" className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[#f4f1ed] to-[#e0d9cf] px-4">
+      <div className="text-center max-w-4xl mx-auto">
+        <h1 className="text-5xl md:text-7xl font-bold text-[#1b1b1b] mb-6 leading-tight">
+          Welcome to <span className="text-[#B8860B]">LJ SCENTS</span>
+        </h1>
+        <p className="text-xl md:text-2xl text-[#333] mb-10">
+          Handcrafted scents for your space, made with love in Kenya.
+        </p>
+        <a href="/#products" className="inline-block bg-[#28a745] text-white px-10 py-4 rounded-full text-lg font-bold hover:bg-[#218838] transition transform hover:scale-105">
+          Explore Products
+        </a>
       </div>
     </section>
   );
 }
-
-export default Home;

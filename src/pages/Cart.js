@@ -1,72 +1,50 @@
-import React from 'react';
-
-function Cart({ cart, removeFromCart, setShowCheckout, submitOrder, showCheckout }) {
+// src/pages/Cart.js
+export default function Cart({ cart, removeFromCart, setShowCheckout, submitOrder, showCheckout }) {
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   return (
-    <section id="cart" className="py-20 px-4 md:px-10 bg-secondary min-h-screen">
-      <h2 className="text-2xl md:text-3xl font-bold text-primary text-center mb-8 uppercase">Your Cart</h2>
-      <div className="cart-items flex flex-col gap-4 max-w-[600px] mx-auto">
-        {cart.map((item, index) => (
-          <div
-            key={index}
-            className="cart-item flex justify-between items-center p-4 bg-white text-black border border-gray-300 rounded-lg shadow-md"
-          >
-            <span>
-              {item.name} ({item.size}) - {item.quantity}x KES {item.price.toFixed(2)}
-            </span>
-            <button
-              className="bg-red-500 text-white px-3 py-2 rounded-md hover:bg-red-600"
-              onClick={() => removeFromCart(index)}
-            >
-              Remove
-            </button>
-          </div>
-        ))}
+    <section id="cart" className="min-h-screen py-20 px-4 bg-[#1b1b1b] text-white">
+      <div className="max-w-4xl mx-auto">
+        <h5 className="uppercase font-bold text-[#B8860B] tracking-wider text-sm mb-2 text-center">Your Cart</h5>
+        <h2 className="text-4xl font-bold text-center mb-12">Review Your Order</h2>
+
+        {cart.length === 0 ? (
+          <p className="text-center text-xl">Your cart is empty.</p>
+        ) : (
+          <>
+            <div className="space-y-4 mb-8">
+              {cart.map((item, i) => (
+                <div key={i} className="bg-[#2a2a2a] p-4 rounded-lg flex justify-between items-center">
+                  <div>
+                    <p className="font-bold">{item.name} ({item.size})</p>
+                    <p className="text-sm text-[#d1d1f1]">KES {item.price} × {item.quantity}</p>
+                  </div>
+                  <button onClick={() => removeFromCart(i)} className="text-red-500 hover:text-red-400">Remove</button>
+                </div>
+              ))}
+            </div>
+
+            <div className="bg-[#2a2a2a] p-6 rounded-lg text-center">
+              <p className="text-2xl font-bold mb-4">Total: KES {total.toFixed(2)}</p>
+              <button onClick={() => setShowCheckout(true)} className="bg-[#28a745] text-white px-8 py-3 rounded-full font-bold hover:bg-[#218838] transition">
+                Proceed to Checkout
+              </button>
+            </div>
+
+            {showCheckout && (
+              <form onSubmit={submitOrder} className="mt-8 bg-[#2a2a2a] p-6 rounded-lg space-y-4">
+                <input id="checkout-name" placeholder="Name" required className="w-full p-3 rounded text-black" />
+                <input id="checkout-email" type="email" placeholder="Email" required className="w-full p-3 rounded text-black" />
+                <input id="checkout-phone" placeholder="Phone" required className="w-full p-3 rounded text-black" />
+                <textarea id="checkout-address" placeholder="Address" rows="3" required className="w-full p-3 rounded text-black"></textarea>
+                <button type="submit" className="w-full bg-[#28a745] text-white py-3 rounded font-bold hover:bg-[#218838]">
+                  Place Order via WhatsApp
+                </button>
+              </form>
+            )}
+          </>
+        )}
       </div>
-      <div className="cart-summary text-center mt-4">
-        <span className="total-amount block text-xl font-bold text-black">
-          Total: KES {total.toFixed(2)}
-        </span>
-        <button
-          className="bg-primary text-white px-6 py-3 rounded-md mt-4 hover:bg-[#d4a017] transition-all w-full max-w-[600px]"
-          onClick={() => {
-            if (cart.length === 0) {
-              alert('Your cart is empty!');
-              return;
-            }
-            setShowCheckout(true);
-            document.getElementById('checkout-form').scrollIntoView({ behavior: 'smooth' });
-          }}
-        >
-          Proceed to Checkout
-        </button>
-      </div>
-      {showCheckout && (
-        <form
-          id="checkout-form"
-          className="mt-6 p-4 bg-white text-black border border-gray-300 rounded-lg max-w-[600px] mx-auto"
-          onSubmit={submitOrder}
-        >
-          <h2 className="text-xl font-bold mb-4 text-center">Checkout</h2>
-          <label htmlFor="name" className="block mb-1 font-medium">Name</label>
-          <input id="name" name="name" type="text" className="w-full p-2 border border-gray-300 rounded-md mb-4" />
-          <label htmlFor="email" className="block mb-1 font-medium">Email</label>
-          <input id="email" name="email" type="email" className="w-full p-2 border border-gray-300 rounded-md mb-4" />
-          <label htmlFor="phone" className="block mb-1 font-medium">Phone</label>
-          <input id="phone" name="phone" type="tel" className="w-full p-2 border border-gray-300 rounded-md mb-4" />
-          <label htmlFor="address" className="block mb-1 font-medium">Address</label>
-          <textarea id="address" name="address" className="w-full p-2 border border-gray-300 rounded-md mb-4"></textarea>
-          <button
-            type="submit"
-            className="bg-primary text-white px-6 py-3 rounded-md w-full hover:bg-[#d4a017] transition-all"
-          >
-            Place Order via WhatsApp
-          </button>
-        </form>
-      )}
     </section>
   );
 }
-
-export default Cart;
